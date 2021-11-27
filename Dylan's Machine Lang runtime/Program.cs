@@ -23,6 +23,9 @@ namespace Dylan_s_Machine_Lang_runtime
             Console.WriteLine("it should be:  \nMemory_address,Contents;\n (split them by ',') ");
             Console.WriteLine("and split the whole address-content unit by ';'");
             Console.WriteLine("In which the enter and space will be ignored.");
+            Console.WriteLine("The simple format should go like this:");
+            Console.WriteLine("2211\n3202\nC000");
+            Console.WriteLine("Every line a a character instruction.");
             Console.WriteLine();
             Console.WriteLine();
             if (cmdPath==""|| !File.Exists(cmdPath))
@@ -129,14 +132,18 @@ namespace Dylan_s_Machine_Lang_runtime
                     {
                         while (UserCMD.TryDequeue(out userCmd))
                         {
-                            Execute(userCmd.Item2);
+                            if (userCmd.Item1 <= programCounter)
+                                Execute(userCmd.Item2);
+                            else
+                                break;
                         }
                     }
                 }
-                if (isHalted) return;
                 Execute(Memory.MemGet(programCounter++).IntTo2Hex() + Memory.MemGet(programCounter++).IntTo2Hex());
                 Logger.pc = programCounter;
+                if (isHalted) return;
             }
+            log("ERROR: TOO MANY EXECUTIONS!",LogLevel.fatal);
         }
 
         public void InitIns(string ins)
@@ -245,7 +252,7 @@ namespace Dylan_s_Machine_Lang_runtime
             {
                 int regAddressR = instruction.Substring(2, 1).HexToInt();
                 int regAddressS = instruction.Substring(3, 1).HexToInt();
-                Register.RegisterSet(regAddressR, Register.RegisterGet(regAddressS));
+                Register.RegisterSet(regAddressS, Register.RegisterGet(regAddressR));
                 log($"MOVE REG_{instruction.Substring(2, 1)} to REG_{instruction.Substring(3, 1)}", LogLevel.info);
                 return true;
             }
@@ -340,7 +347,7 @@ namespace Dylan_s_Machine_Lang_runtime
             public string Format { get; set; } = "B R XY";
             public bool execute(string instruction)
             {
-                int regAddressR = instruction.Substring(1, 2).HexToInt();
+                int regAddressR = instruction.Substring(1, 1).HexToInt();
                 int memAddressXY = instruction.Substring(2, 2).HexToInt();
                 if (Register.RegisterGet(0) == Register.RegisterGet(regAddressR))
                 {
@@ -374,16 +381,19 @@ namespace Dylan_s_Machine_Lang_runtime
                 switch (instruction[1])
                 {
                     case '0':
-                        log($"MEM_{instruction.Substring(2, 2)} = {Memory.MemGet(instruction.Substring(2, 2).HexToInt())}", LogLevel.fatal);
+                        log($"MEM_{instruction.Substring(2, 2)} = {Memory.MemGet(instruction.Substring(2, 2).HexToInt()):X}", LogLevel.alert);
                         break;
                     case '1':
-                        log($"REG_{instruction.Substring(3, 1)} = {Register.RegisterGet(instruction.Substring(3, 1).HexToInt())}", LogLevel.fatal);
+                        log($"REG_{instruction.Substring(3, 1)} = {Register.RegisterGet(instruction.Substring(3, 1).HexToInt()):x}", LogLevel.alert);
                         break;
                     case '2':
                         Memory.PrintAll();
                         break;
                     case '3':
                         Register.PrintAll();
+                        break;
+                    case '4':
+                        log($"Program counter = {programCounter}", LogLevel.alert);
                         break;
                     default:
                         break;
