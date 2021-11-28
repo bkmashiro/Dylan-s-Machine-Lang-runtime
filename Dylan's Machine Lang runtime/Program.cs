@@ -6,7 +6,8 @@ namespace Dylan_s_Machine_Lang_runtime
 {
     class Program
     {
-        static void Main(string[] args)
+        static void
+        Main(string[] args)
         {
             ShowWelcome();
             string cmdPath = "";
@@ -311,28 +312,28 @@ namespace Dylan_s_Machine_Lang_runtime
                     long value = GetMemoryValue(ans);
                     int sign = (int)(((ulong)value & 0x8000000000000000) >> 63);
                     int e = (int)((value & 0x7FF0000000000000) >> 52) - offset;
-                    int e2 = (1 << 2) + e+1;
+                    int e2 = (1 << 2) + e + 1;
                     long d = (value & 0xFFFFFFFFFFFFF);
-                    ulong t=(GetBinay(GetBaseNumber(d)));
+                    ulong t = (GetBinay(GetBaseNumber(d)));
                     int firstOneInt = 3;
                     for (int i = 64 - 1; i >= 0; i--)
                     {
-                        if ((t&(0b1UL<<i))>0)
+                        if ((t & (0b1UL << i)) > 0)
                         {
-                            firstOneInt =i;
+                            firstOneInt = i;
                             break;
                         }
                     }
-                    if (firstOneInt>3)
+                    if (firstOneInt > 3)
                     {
                         t >>= firstOneInt - 3;
                     }
-                    else if (firstOneInt<3)
+                    else if (firstOneInt < 3)
                     {
                         t <<= 3 - firstOneInt;
                     }
                     int myEigttBitFloat = 0;
-                    if (firstOneInt>3)
+                    if (firstOneInt > 3)
                     {
                         log($"float operation truncation error", LogLevel.warning);
                     }
@@ -383,9 +384,9 @@ namespace Dylan_s_Machine_Lang_runtime
                 double b = 1;
                 int counter = 63;
                 ulong ans = 0;
-                while (d>0&&b>1d/(1L<<31))
+                while (d > 0 && b > 1d / (1L << 31))
                 {
-                    if (d>=b)
+                    if (d >= b)
                     {
                         ans |= 1uL << counter;
                         d -= b;
@@ -394,8 +395,8 @@ namespace Dylan_s_Machine_Lang_runtime
                     b /= 2f;
                     --counter;
                 }
-                int cnt=0;
-                while ((ans&0b1)==0&&cnt<64)
+                int cnt = 0;
+                while ((ans & 0b1) == 0 && cnt < 64)
                 {
                     ans >>= 1;
                     ++cnt;
