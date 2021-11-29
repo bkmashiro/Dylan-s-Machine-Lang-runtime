@@ -183,7 +183,7 @@ namespace Dylan_s_Machine_Lang_runtime
                 if (s == "" || s[0] == '#') continue;
                 if (s[0] == '$')
                 {
-                    UserCMD.Enqueue((_tmp_addr, s[1..4]));
+                    UserCMD.Enqueue((_tmp_addr, s[1..]));
                     continue;
                 }
                 string[] ss = s.Split(',');
