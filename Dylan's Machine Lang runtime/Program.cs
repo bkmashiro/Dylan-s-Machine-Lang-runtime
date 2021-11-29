@@ -127,14 +127,19 @@ namespace Dylan_s_Machine_Lang_runtime
             {
                 //perform usercommand
                 (int, string) userCmd;
-                if (UserCMD.TryPeek(out userCmd))
+                if (UserCMD.Count>0)
                 {
+                    UserCMD.TryPeek(out userCmd);
                     if (userCmd.Item1 <= programCounter)
                     {
-                        while (UserCMD.TryDequeue(out userCmd))
+                        while (UserCMD.Count > 0)
                         {
+                            UserCMD.TryPeek(out userCmd);
                             if (userCmd.Item1 <= programCounter)
+                            {
                                 Execute(userCmd.Item2);
+                                UserCMD.Dequeue();
+                            }   
                             else
                                 break;
                         }
