@@ -84,7 +84,7 @@ namespace Dylan_s_Machine_Lang_runtime
                                 ╚══════╝ ╚═╝     ╚═╝ ╚══════╝ ╚═╝  ╚═╝
                                    
                                    ");
-            Console.WriteLine("                          bk's machine language runtime version 1.0.0");
+            Console.WriteLine("                          bk's machine language runtime version 1.1.0");
 
         }
     }
