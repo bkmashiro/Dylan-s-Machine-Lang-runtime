@@ -26,31 +26,29 @@ namespace Dylan_s_Machine_Lang_runtime
             Console.WriteLine("In which the enter and space will be ignored.");
             Console.WriteLine("The simple format should go like this:");
             Console.WriteLine("2211\n3202\nC000");
-            Console.WriteLine("Every line a a character instruction.");
+            Console.WriteLine("Every line a character instruction.");
             Console.WriteLine();
             Console.WriteLine();
-            if (cmdPath == "" || !File.Exists(cmdPath))
+        restart:
+            Console.WriteLine("Please Input a txt file (Relative path e.g. t.txt or absloute path C:\\Users\\Administrator\\Desktop):");
+            while (true)
             {
-                Console.WriteLine("Please Input a txt file:");
-                while (true)
+                cmdPath = Console.ReadLine().Trim();
+                if (File.Exists(cmdPath))
                 {
-                    cmdPath = Console.ReadLine().Trim();
-                    if (File.Exists(cmdPath))
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Unable to access file" + cmdPath + ",Please try again");
-                    }
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Unable to access file" + cmdPath + ",Please try again.");
                 }
             }
             string text = File.ReadAllText(cmdPath);
+            MachineLangAnalyser machineLangAnalyser = new MachineLangAnalyser();
             if (text.Contains(','))
             {
                 Console.WriteLine("Loading Complex Memory format file...");
                 Console.WriteLine();
-                MachineLangAnalyser machineLangAnalyser = new MachineLangAnalyser();
                 machineLangAnalyser.LoadMem(text);
                 Console.WriteLine("Input the HEX memory address entry(where the program counter starts):");
                 machineLangAnalyser.ExecuteFrom(Console.ReadLine().Trim().HexToInt());
@@ -59,12 +57,20 @@ namespace Dylan_s_Machine_Lang_runtime
             {
                 Console.WriteLine("Loading Simple Memory format file...");
                 Console.WriteLine();
-                MachineLangAnalyser machineLangAnalyser = new MachineLangAnalyser();
                 machineLangAnalyser.LoadIns(text);
                 machineLangAnalyser.ExecuteFrom(0);
             }
-            Console.WriteLine("Press any key to exit.");
-            Console.ReadKey();
+            Console.WriteLine("Enter exit to exit,press enter to continue.");
+            if (Console.ReadLine().Trim() == "exit")
+            {
+                //stop
+            }
+            else
+            {
+                Console.WriteLine("Reinitializing Virtual Machine...");
+                machineLangAnalyser.Initiialize();
+                goto restart;
+            }
         }
 
         static void ShowWelcome()
@@ -103,6 +109,11 @@ namespace Dylan_s_Machine_Lang_runtime
         {
             MLCPU.Satrt(counter);
         }
+
+        public void Initiialize()
+        {
+            MLCPU.Initiialize();
+        }
     }
 
     class MLCPU
@@ -127,7 +138,7 @@ namespace Dylan_s_Machine_Lang_runtime
             {
                 //perform usercommand
                 (int, string) userCmd;
-                if (UserCMD.Count>0)
+                if (UserCMD.Count > 0)
                 {
                     UserCMD.TryPeek(out userCmd);
                     if (userCmd.Item1 <= programCounter)
@@ -139,7 +150,7 @@ namespace Dylan_s_Machine_Lang_runtime
                             {
                                 Execute(userCmd.Item2);
                                 UserCMD.Dequeue();
-                            }   
+                            }
                             else
                                 break;
                         }
@@ -151,7 +162,13 @@ namespace Dylan_s_Machine_Lang_runtime
             }
             log("ERROR: TOO MANY EXECUTIONS!", LogLevel.fatal);
         }
-
+        public void Initiialize()
+        {
+            Register.Initiialize();
+            Memory.Initiialize();
+            Instructions.Clear();
+            UserCMD.Clear();
+        }
         public void InitIns(string ins)
         {
             int addr = 0;
@@ -635,6 +652,11 @@ namespace Dylan_s_Machine_Lang_runtime
             log($"===END REGISTER SNAPSHOT===", LogLevel.alert);
 
         }
+        public void Initiialize()
+        {
+            _registers.Clear();
+            registers.Clear();
+        }
     }
     class MLMEM
     {
@@ -689,7 +711,6 @@ namespace Dylan_s_Machine_Lang_runtime
                 }
             }
         }
-
         public void PrintAll()
         {
             log("===START MEMORY SNAPSHOT===", LogLevel.alert);
@@ -698,6 +719,11 @@ namespace Dylan_s_Machine_Lang_runtime
                 log($"   MEM_{item.Address.IntTo2Hex()} = {item.Value.IntTo2Hex()}", LogLevel.alert);
             }
             log($"===END MEMORY SNAPSHOT===", LogLevel.alert);
+        }
+        public void Initiialize()
+        {
+            _mem.Clear();
+            mem.Clear();
         }
     }
     public static class Helper
